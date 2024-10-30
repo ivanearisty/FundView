@@ -1,3 +1,7 @@
+// import { useEffect, useState } from "react";
+// import { fetchHelloData } from "../../../lib/api";
+// import * as d3 from 'd3'
+
 export default async function StockDetail({
   params,
 }: {
