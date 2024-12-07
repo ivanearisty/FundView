@@ -4,6 +4,7 @@
 
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
+import { Legend } from "../lib/d3-color-legend";
 
 function Heatmap(props: { data: {x: string, y: string, v: number}[], width: number, height: number}) {
     const ref = useRef(null);
@@ -18,7 +19,8 @@ function Heatmap(props: { data: {x: string, y: string, v: number}[], width: numb
     }
 
     useEffect(() => {
-        const margin = {top: 20, bottom: 20, left: 40, right: 0};
+        const margin = {top: 40, bottom: 20, left: 40, right: 0};
+        const legend_margin = {top: 0, right: 20, width: 100};
         const x_scale_half = 5;
 
         d3.select(ref.current)
@@ -78,6 +80,17 @@ function Heatmap(props: { data: {x: string, y: string, v: number}[], width: numb
             .attr("fill", d => getTextColor(color(d.v)))
             .style("text-anchor", "middle")
             .text(d => `${d3.format('+.2f')(d.v)}%`);
+
+        // legend
+        svg.append("g")
+            .attr("transform",
+                `translate(${props.width - legend_margin.right - legend_margin.width},${legend_margin.top})`
+            )
+            .append(() => Legend(color, {
+                title: "# of arrests",
+                width: legend_margin.width,
+                tickFormat: (d: number) => `${d3.format('+.2f')(d)}%`}))
+            .attr("id", "legend");
     }, [props.data, props.height, props.width]);
 
     return <svg width={props.width} height={props.height} id="heatmap" ref={ref} />;
