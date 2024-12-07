@@ -38,8 +38,7 @@ function Heatmap(props: { data: {x: string, y: string, v: number}[], width: numb
             .padding(0.1);
     
         // Define the color scale.
-        const color = (x: number) =>
-            x >= 0 ? d3.scaleSequential([0, x_scale_half], ["white", "green"])(x) : d3.scaleSequential([-x_scale_half, 0], ["red", "white"])(x);
+        const color = d3.scaleDiverging([-x_scale_half, 0, x_scale_half], ["red", "white", "green"]);
     
         // Create the container SVG.
         const svg = d3.select(ref.current)
