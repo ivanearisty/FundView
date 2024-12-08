@@ -6,7 +6,7 @@ import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 import { Legend } from "../lib/d3-color-legend";
 
-function Heatmap(props: { data: {x: string, y: string, v: number}[], width: number, height: number}) {
+function Heatmap(props: { data: {x: string, y: string, v: number}[], width: number, height: number, legend_title: string}) {
     const ref = useRef(null);
 
     const getTextColor = (c: string) => {
@@ -87,11 +87,11 @@ function Heatmap(props: { data: {x: string, y: string, v: number}[], width: numb
                 `translate(${props.width - legend_margin.right - legend_margin.width},${legend_margin.top})`
             )
             .append(() => Legend(color, {
-                title: "# of arrests",
+                title: props.legend_title,
                 width: legend_margin.width,
                 tickFormat: (d: number) => `${d3.format('+.2f')(d)}%`}))
             .attr("id", "legend");
-    }, [props.data, props.height, props.width]);
+    }, [props.data, props.height, props.width, props.legend_title]);
 
     return <svg width={props.width} height={props.height} id="heatmap" ref={ref} />;
 };
