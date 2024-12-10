@@ -11,7 +11,7 @@ interface DataPoint {
     [key: string]: string | number; // Flexible keys for groupings
 }
 
-interface ScatterplotProps {
+interface LineChartProps {
     data: DataPoint[]; // Dataset for the chart
     width: number; // Chart width
     height: number; // Chart height
@@ -19,7 +19,7 @@ interface ScatterplotProps {
     title?: string; // Optional chart title
 }
 
-function Scatterplot({ data, width, height, groupKey, title }: ScatterplotProps) {
+function LineChart({ data, width, height, groupKey, title }: LineChartProps) {
     const ref = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
@@ -115,4 +115,4 @@ function Scatterplot({ data, width, height, groupKey, title }: ScatterplotProps)
     return <svg ref={ref} width={width} height={height} />;
 }
 
-export default Scatterplot;
+export default LineChart;
