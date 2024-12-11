@@ -6,8 +6,10 @@ import useWindowDimensions from "@/hooks/useWindowDimensions";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
+type BarChartDataPoint = {stock: string, holdingAmount: number, time: string};
+
 function Barchart(props: {
-    data: {stock: string, holdingAmount: number, time: string}[],
+    data: BarChartDataPoint[],
     width: number, height: number, quarter: string
 }) {
     const ref = useRef(null);
@@ -64,11 +66,24 @@ function Barchart(props: {
         const color = d3.scaleOrdinal<string>()
             .domain(props.data.map(d => d.stock))
             .range(d3.schemeCategory10);
+
+        // Add points with tooltips
+        const tooltip = d3
+            .select("body")
+            .append("div")
+            .style("position", "absolute")
+            .style("background", "#f9f9f9")
+            .style("border", "1px solid #d3d3d3")
+            .style("padding", "8px")
+            .style("border-radius", "4px")
+            .style("pointer-events", "none")
+            .style("visibility", "hidden");
         
         // Draw bars with different colors
-        svg
+        const dataRects = svg
             .selectAll("rect")
-            .data(top5Data)
+            .data(top5Data);
+        dataRects
             .join(
                 enter => {
                     console.log(enter);
@@ -86,6 +101,23 @@ function Barchart(props: {
             .attr("width", x.bandwidth())
             .attr("height", d => height - y(d.holdingAmount))
             .attr("fill", (d) => color(d.stock)); // Assign color based on stock name
+        
+        dataRects
+            .on("mouseover", (event: MouseEvent, d: BarChartDataPoint) => {
+                d3.select(event.target as SVGElement)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 2);
+                tooltip.style("visibility", "visible").text(`Holdings: ${d.holdingAmount}`);
+            })
+            .on("mousemove", (event: MouseEvent) => {
+                tooltip
+                    .style("top", `${event.pageY - 10}px`)
+                    .style("left", `${event.pageX + 10}px`);
+            })
+            .on("mouseout", (event: MouseEvent) => {
+                d3.select(event.target as SVGElement).attr("stroke", "none");
+                tooltip.style("visibility", "hidden");
+            });
 
     }, [props.data, props.height, props.width, windowWidth]);
 
