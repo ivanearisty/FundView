@@ -31,3 +31,6 @@ Thumbs.db
 
 package-lock.json
 database/EdgarDataSource/*.tsv
+database/EdgarDataSource/COVERPAGE/*.tsv
+database/EdgarDataSource/SUBMISSION/*.tsv
+database/EdgarDataSource/INFOTABLE/*.tsv
