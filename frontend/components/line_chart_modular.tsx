@@ -40,7 +40,7 @@ function LineChart({ data, width, height, groupKey, title, quarters }: LineChart
         // Define scales
         const legendPadding = 120
         const x = d3.scaleBand()
-            .domain([...new Set(data.map((d) => d.time))])
+            .domain(quarters ?? [...new Set(data.map((d) => d.time))])
             .range([margin.left, width - margin.right - legendPadding]);
 
         const y = d3.scaleLinear()
@@ -94,6 +94,9 @@ function LineChart({ data, width, height, groupKey, title, quarters }: LineChart
         const line = d3.line<DataPoint>()
             .x((d: DataPoint) => (x(d.time) || 0) + x.bandwidth() / 2)
             .y((d: DataPoint) => y(d.holdings));
+
+        if (quarters)
+            data = data.filter(d => quarters.indexOf(d.time) > -1);
 
         const groupedData = Array.from(
             d3.group(data, (d: DataPoint) => d[groupKey] as string)
