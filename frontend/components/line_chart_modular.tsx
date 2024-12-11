@@ -27,7 +27,7 @@ function LineChart({ data, width, height, groupKey, title, quarters }: LineChart
     width = width * windowWidth;
 
     useEffect(() => {
-        const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+        const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 
         // Clear previous chart
         d3.select(ref.current).selectAll("*").remove();
@@ -73,7 +73,9 @@ function LineChart({ data, width, height, groupKey, title, quarters }: LineChart
         // Add the axes
         svg.append("g")
             .attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(d3.axisBottom(x));
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "rotate(-45),translate(-25, -5)");
 
         svg.append("g")
             .attr("transform", `translate(${margin.left},0)`)
