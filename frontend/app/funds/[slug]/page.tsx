@@ -3,7 +3,8 @@
 import Barchart from "@/components/Barchart";
 import Slider from "@/components/Slider";
 import LineChart, { DataPoint } from "@/components/line_chart_modular";
-import { FundDataPoint, fetchTestData } from "@/lib/api";
+import { FundDataPoint, fetchData } from "@/lib/api";
+import { db } from "@/lib/database";
 import { use, useEffect, useState } from "react";
 import Select from 'react-select';
 
@@ -51,7 +52,7 @@ export default function FundDetail({
   const [companyFilter, setCompanyFilter] = useState(companies.slice(0, 10).map(v => v.value));
 
   useEffect(() => {
-    fetchTestData()
+    fetchData(slug)
       .then(({data, quarters: q}) => {
         setData(data);
         setLoading(false);
