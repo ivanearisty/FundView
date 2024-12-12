@@ -13,10 +13,9 @@
     "htl": "^0.3.1",
     "mysql2": "^3.11.5",
     "next": "15.0.2",
-    "react": "^19.0.0-rc-02c0e824-20241028",
-    "react-dom": "19.0.0-rc-02c0e824-20241028",
+    "react": "^19.0.0",
+    "react-dom": "19.0.0",
     "react-range": "^1.10.0",
-    "swr": "^2.2.5",
     "react-select": "^5.9.0"
   },
   "devDependencies": {
