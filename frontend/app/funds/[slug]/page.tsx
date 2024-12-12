@@ -5,6 +5,7 @@ import Slider from "@/components/Slider";
 import LineChart, { DataPoint } from "@/components/line_chart_modular";
 import { FundDataPoint, fetchTestData } from "@/lib/api";
 import { use, useEffect, useState } from "react";
+import Select from 'react-select';
 
 const processDataForLineChart = (data: FundDataPoint[]) => {
   return data.map(d => ({
@@ -46,6 +47,8 @@ export default function FundDetail({
   const [quarters, setQuarters] = useState([] as string[]);
   const quarterState = useState([0]);
   const quarterRangeState = useState([0, 0]);
+  const companies = [...new Set(data.map(d => d.name_of_issuer))].map((c: string) => ({value: c, label: c}));
+  const [companyFilter, setCompanyFilter] = useState(companies.slice(0, 10).map(v => v.value));
 
   useEffect(() => {
     fetchTestData()
@@ -64,19 +67,30 @@ export default function FundDetail({
   if (!data) return (
     <p>No data!!!</p>
   )
+
   return (
     <div>
       <h1>Fund Details for {slug}</h1>
       <p>View detailed information about fund {slug}.</p>
       <div style={{ width: "100%" }}>
+        <div style={{ width: "70%", margin: "auto" }}>
+          <Select
+            isMulti
+            name="stocks"
+            options={companies}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            onChange={v => { setCompanyFilter(v.map(c => c.value)); }}
+          />
+        </div>
         <div style={{ width: "50%", display: "inline-block" }}>
           <div style={{ width: "70%", marginLeft: "auto", marginRight: "auto", marginTop: "50px" }}>
             <Slider quarters={quarters}
               state={quarterState} range={false} />
           </div>
-          <h2>Top holdings during {getQuarters(quarters, quarterState[0])[0]}</h2>
+          <h2>Holdings during {getQuarters(quarters, quarterState[0])[0]}</h2>
           <Barchart
-            width={0.45} height={400} 
+            width={0.45} height={400} companies={companyFilter}
             data={processDataForBarChart(data)} quarter={getQuarters(quarters, quarterState[0])[0]}
           />
         </div>
@@ -85,11 +99,11 @@ export default function FundDetail({
             <Slider quarters={quarters}
               state={quarterRangeState} range={true} />
           </div>
-          <h2>Trend of top holding between {
+          <h2>Trend of holding between {
             getQuarters(quarters, quarterRangeState[0]).filter((_, i, a) => i == 0 || i == a.length - 1).join(" and ")
           }</h2>
           <LineChart
-            width={0.45} height={400} groupKey="stock"
+            width={0.45} height={400} groupKey="stock" companies={companyFilter}
             data={processDataForLineChart(data)} quarters={getQuarters(quarters, quarterRangeState[0])}
           />
         </div>

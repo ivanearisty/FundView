@@ -9,7 +9,7 @@ import useWindowDimensions from "@/hooks/useWindowDimensions";
 
 function Heatmap(props: {
     data: {x: string, y: string, v: number}[],
-    width: number, height: number, legend_title: string, quarters?: string[]
+    width: number, height: number, legend_title: string, quarters?: string[], companies: string[]
 }) {
     const ref = useRef(null);
     const { width: windowWidth } = useWindowDimensions();
@@ -41,7 +41,7 @@ function Heatmap(props: {
     
         // Define the vertical scale.
         const y = d3.scaleBand()
-            .domain([...new Set(props.data.map(d => d.y))])
+            .domain(props.companies ?? [...new Set(props.data.map(d => d.y))])
             .range([props.height - margin.bottom, margin.top])
             .padding(0.1);
     
@@ -65,7 +65,10 @@ function Heatmap(props: {
             .attr("transform", `translate(${margin.left},0)`)
             .call(d3.axisLeft(y));
 
-        const data = props.data.filter(d => props.quarters?.indexOf(d.x) ?? 1 > -1);
+        const data = props.data.filter(d => 
+            (props.quarters?.indexOf(d.x) ?? 1 > -1) &&
+            (props.companies.length == 0 || props.companies.indexOf(d.y) > -1)
+        );
     
         // draw the rectangles
         svg.append("g")

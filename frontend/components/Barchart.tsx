@@ -10,18 +10,21 @@ type BarChartDataPoint = {stock: string, holdingAmount: number, time: string};
 
 function Barchart(props: {
     data: BarChartDataPoint[],
-    width: number, height: number, quarter: string
+    width: number, height: number, quarter: string, companies: string[]
 }) {
     const ref = useRef(null);
     const { width: windowWidth } = useWindowDimensions();
     const canvasWidth = props.width * windowWidth;
 
     useEffect(() => {
-        // Sort by holdingAmount in descending order and take the top 5
-        const top5Data = props.data
-            .filter(d => d.time == props.quarter)
-            .sort((a, b) => b.holdingAmount - a.holdingAmount)
-            .slice(0, 5);
+        // Sort by holdingAmount in descending order and take selected companies
+        let top5Data = props.data
+            .filter(d => d.time == props.quarter &&
+                (props.companies.length == 0 || props.companies.indexOf(d.stock) > -1)
+            )
+            .sort((a, b) => b.holdingAmount - a.holdingAmount);
+        if (props.companies.length == 0)
+            top5Data = top5Data.slice(0, 5);
 
         // Set up dimensions and margins
         const margin = { top: 20, right: 30, bottom: 40, left: 40 };
