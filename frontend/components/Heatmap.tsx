@@ -5,9 +5,15 @@
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 import { Legend } from "../lib/d3-color-legend";
+import useWindowDimensions from "@/hooks/useWindowDimensions";
 
-function Heatmap(props: { data: {x: string, y: string, v: number}[], width: number, height: number, legend_title: string}) {
+function Heatmap(props: {
+    data: {x: string, y: string, v: number}[],
+    width: number, height: number, legend_title: string, quarters?: string[]
+}) {
     const ref = useRef(null);
+    const { width: windowWidth } = useWindowDimensions();
+    const canvasWidth = props.width * windowWidth;
 
     const getTextColor = (c: string) => {
         const color = d3.color(c)?.rgb();
@@ -29,7 +35,7 @@ function Heatmap(props: { data: {x: string, y: string, v: number}[], width: numb
     
         // Define the horizontal scale.
         const x = d3.scaleBand()
-            .domain([...new Set(props.data.map(d => d.x))])
+            .domain(props.quarters ?? [...new Set(props.data.map(d => d.x))])
             .range([margin.left, props.width - margin.right])
             .padding(0.1);
     
@@ -58,11 +64,13 @@ function Heatmap(props: { data: {x: string, y: string, v: number}[], width: numb
         svg.append("g")
             .attr("transform", `translate(${margin.left},0)`)
             .call(d3.axisLeft(y));
+
+        const data = props.data.filter(d => props.quarters?.indexOf(d.x) ?? 1 > -1);
     
         // draw the rectangles
         svg.append("g")
             .selectAll("rect")
-            .data(props.data)
+            .data(data)
             .join("rect")
             .attr("x", d => x(d.x)!)
             .attr("width", x.bandwidth())
@@ -73,7 +81,7 @@ function Heatmap(props: { data: {x: string, y: string, v: number}[], width: numb
         // add the labels
         svg.append("g")
             .selectAll("text")
-            .data(props.data)
+            .data(data)
             .join("text")
             .attr("x", d => x(d.x)! + x.bandwidth() / 2)
             .attr("y", d => y(d.y)! + y.bandwidth() / 2 + 5)
@@ -93,7 +101,7 @@ function Heatmap(props: { data: {x: string, y: string, v: number}[], width: numb
             .attr("id", "legend");
     }, [props.data, props.height, props.width, props.legend_title]);
 
-    return <svg width={props.width} height={props.height} id="heatmap" ref={ref} />;
+    return <svg width={canvasWidth} height={props.height} id="heatmap" ref={ref} />;
 };
 
 export default Heatmap;

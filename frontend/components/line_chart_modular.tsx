@@ -27,7 +27,7 @@ function LineChart({ data, width, height, groupKey, title, quarters }: LineChart
     width = width * windowWidth;
 
     useEffect(() => {
-        const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+        const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 
         // Clear previous chart
         d3.select(ref.current).selectAll("*").remove();
@@ -40,7 +40,7 @@ function LineChart({ data, width, height, groupKey, title, quarters }: LineChart
         // Define scales
         const legendPadding = 120
         const x = d3.scaleBand()
-            .domain([...new Set(data.map((d) => d.time))])
+            .domain(quarters ?? [...new Set(data.map((d) => d.time))])
             .range([margin.left, width - margin.right - legendPadding]);
 
         const y = d3.scaleLinear()
@@ -73,7 +73,9 @@ function LineChart({ data, width, height, groupKey, title, quarters }: LineChart
         // Add the axes
         svg.append("g")
             .attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(d3.axisBottom(x));
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "rotate(-45),translate(-25, -5)");
 
         svg.append("g")
             .attr("transform", `translate(${margin.left},0)`)
@@ -94,6 +96,9 @@ function LineChart({ data, width, height, groupKey, title, quarters }: LineChart
         const line = d3.line<DataPoint>()
             .x((d: DataPoint) => (x(d.time) || 0) + x.bandwidth() / 2)
             .y((d: DataPoint) => y(d.holdings));
+
+        if (quarters)
+            data = data.filter(d => quarters.indexOf(d.time) > -1);
 
         const groupedData = Array.from(
             d3.group(data, (d: DataPoint) => d[groupKey] as string)
