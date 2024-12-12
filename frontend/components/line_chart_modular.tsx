@@ -30,6 +30,10 @@ function LineChart({ data, width, height, groupKey, title, quarters, companies }
     useEffect(() => {
         const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 
+        if (companies.length == 0) {
+            companies = [...new Set(data.map(d => d[groupKey] as string))].slice(0, 10);
+        }
+
         // Clear previous chart
         d3.select(ref.current).selectAll("*").remove();
 
@@ -100,8 +104,7 @@ function LineChart({ data, width, height, groupKey, title, quarters, companies }
 
         if (quarters)
             data = data.filter(d => quarters.indexOf(d.time) > -1);
-        if (companies.length > 0)
-            data = data.filter(d => companies.indexOf(d[groupKey] as string) > -1);
+        data = data.filter(d => companies.indexOf(d[groupKey] as string) > -1);
 
         const groupedData = Array.from(
             d3.group(data, (d: DataPoint) => d[groupKey] as string)
