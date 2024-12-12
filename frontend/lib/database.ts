@@ -10,7 +10,7 @@ const pool = mysql.createPool({
 });
 
 export const db = {
-  query: async (sql: string, params?: any[]) => {
+  query: async (sql: string, params?: unknown[]) => {
     const [results] = await pool.query(sql, params);
     return results;
   },
