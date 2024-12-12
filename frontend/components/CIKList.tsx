@@ -1,16 +1,29 @@
-import { useCIKs } from '@/hooks/useCIKs';
+import { db } from "@/lib/database";
+import { RowDataPacket } from "mysql2";
 
-export default function CIKList() {
-  const { ciks, isLoading, isError } = useCIKs();
+async function getCIKs() {
+  const ciks = await db.query('SELECT DISTINCT CIK FROM SUBMISSION');
+  console.log(ciks);
+  return ciks as CIKRow[];
+}
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading CIKs</div>;
+export default async function DashboardPage() {
+  const ciks = await getCIKs();
 
   return (
-    <ul>
-      {ciks.map((cik: string) => (
-        <li key={cik}>{cik}</li>
-      ))}
-    </ul>
+    <div>
+      <h1>Dashboard</h1>
+      <h2>CIKs:</h2>
+      <ul>
+        {ciks.map((cik) => (
+          <li key={cik.CIK}>{cik.CIK}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
+
+interface CIKRow extends RowDataPacket {
+    CIK: string;
+  }
+  

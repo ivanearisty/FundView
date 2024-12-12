@@ -5,7 +5,7 @@ export async function GET() {
     try {
       const ciks = await db.query('SELECT DISTINCT CIK FROM SUBMISSION');
       return NextResponse.json(ciks);
-    } catch (error) {
+    } catch (error) {   
       console.error('Error fetching CIKs:', error);
       return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
