@@ -2,6 +2,10 @@ import os
 import pymysql
 from dotenv import load_dotenv
 from multiprocessing import Pool, cpu_count
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
+
+print_lock = Lock()
 
 # Load environment variables from .env file
 load_dotenv()
@@ -37,6 +41,40 @@ def initialize_db():
 SUBMISSION_DIR = os.path.join(BASE_DIR, 'EdgarDataSource/SUBMISSION')
 COVERPAGE_DIR = os.path.join(BASE_DIR, 'EdgarDataSource/COVERPAGE')
 INFOTABLE_DIR = os.path.join(BASE_DIR, 'EdgarDataSource/INFOTABLE')
+
+def create_index(query, index_name):
+    connection = pymysql.connect(**connection_config)
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+        connection.commit()
+        with print_lock:
+            print(f"Index created for {index_name}")
+    except Exception as e:
+        with print_lock:
+            print(f"Error creating index for {index_name}: {str(e)}")
+    finally:
+        connection.close()
+
+def create_indexes():
+    index_queries = [
+        ("CREATE INDEX idx_submission_accession_number ON SUBMISSION(ACCESSION_NUMBER);", "SUBMISSION.ACCESSION_NUMBER"),
+        ("CREATE INDEX idx_submission_filing_date ON SUBMISSION(FILING_DATE);", "SUBMISSION.FILING_DATE"),
+        ("CREATE INDEX idx_submission_cik ON SUBMISSION(CIK);", "SUBMISSION.CIK"),
+        ("CREATE INDEX idx_coverpage_accession_number ON COVERPAGE(ACCESSION_NUMBER);", "COVERPAGE.ACCESSION_NUMBER"),
+        ("CREATE INDEX idx_coverpage_filing_manager_name ON COVERPAGE(FILINGMANAGER_NAME);", "COVERPAGE.FILINGMANAGER_NAME"),
+        ("CREATE INDEX idx_infotable_accession_number ON INFOTABLE(ACCESSION_NUMBER);", "INFOTABLE.ACCESSION_NUMBER"),
+        ("CREATE INDEX idx_infotable_infotable_sk ON INFOTABLE(INFOTABLE_SK);", "INFOTABLE.INFOTABLE_SK"),
+        ("CREATE INDEX idx_infotable_name_of_issuer ON INFOTABLE(NAMEOFISSUER);", "INFOTABLE.NAMEOFISSUER"),
+        ("CREATE INDEX idx_infotable_title_of_class ON INFOTABLE(TITLEOFCLASS);", "INFOTABLE.TITLEOFCLASS"),
+        ("CREATE INDEX idx_infotable_cusip ON INFOTABLE(CUSIP);", "INFOTABLE.CUSIP"),
+        ("CREATE INDEX idx_infotable_value ON INFOTABLE(VALUE);", "INFOTABLE.VALUE")
+    ]
+
+    with ThreadPoolExecutor(max_workers=7) as executor:
+        executor.map(lambda x: create_index(*x), index_queries)
+
+    print("All index creation tasks have been submitted.")
 
 # Function to load a single file into MySQL
 def load_file(args):
@@ -98,3 +136,7 @@ if __name__ == "__main__":
         pool.map(load_file, tasks)
 
     print("All files loaded successfully!")
+
+    create_indexes()
+
+    print("All done!")
