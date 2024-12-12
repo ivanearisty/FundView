@@ -12,7 +12,7 @@ connection_config = {
     "user": os.getenv("DB_USER", "root"),
     "password": os.getenv("DB_PASSWORD", "root"),
     "database": os.getenv("DB_NAME", "ThirteenF"),
-    "port": int(os.getenv("DB_PORT", 3306)),
+    "port": int(os.getenv("DB_PORT", 8889)),
     "local_infile": True
 }
 
@@ -85,13 +85,13 @@ if __name__ == "__main__":
     for file in os.listdir(COVERPAGE_DIR):
         if file.endswith('.tsv'):
             file_path = os.path.join(COVERPAGE_DIR, file)
-            tasks.append((file_path, 'COVERPAGE', ['ACCESSION_NUMBER', '@REPORTCALENDARORQUARTER', 'ISAMENDMENT', 'FILINGMANAGER_NAME'], ['REPORTCALENDARORQUARTER']))
+            tasks.append((file_path, 'COVERPAGE', ['ACCESSION_NUMBER', '@REPORTCALENDARORQUARTER', 'ISAMENDMENT', 'AMENDMENTNO', 'AMENDMENTTYPE', 'CONFDENIEDEXPIRED', 'DATEDENIEDEXPIRED', 'DATEREPORTED', 'REASONFORNONCONFIDENTIALITY','FILINGMANAGER_NAME'], ['REPORTCALENDARORQUARTER']))
 
     # Add INFOTABLE files to tasks
     for file in os.listdir(INFOTABLE_DIR):
         if file.endswith('.tsv'):
             file_path = os.path.join(INFOTABLE_DIR, file)
-            tasks.append((file_path, 'INFOTABLE', ['ACCESSION_NUMBER', 'INFOTABLE_SK', 'NAMEOFISSUER', 'TITLEOFCLASS', 'CUSIP', 'VAL'], []))
+            tasks.append((file_path, 'INFOTABLE', ['ACCESSION_NUMBER', 'INFOTABLE_SK', 'NAMEOFISSUER', 'TITLEOFCLASS', 'CUSIP', 'FIGI', 'VALUE'], []))
 
     # Use multiprocessing to load files concurrently
     with Pool(cpu_count()) as pool:
